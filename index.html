@@ -1,11 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Pinga</title>
+	<title>Rotulador PHP</title>
+	<meta charset="utf-8">
 </head>
 <body>
 
-<h1>Pinga</h1>
+	<p>
+		<label>Insira o códgo fonte em PHP para ser analisado e rotulado!</label>
+	</p>
+		<p>
+			<textarea name="codigo_fonte" id="codigo_fonte" rows="25" cols="50" autofocus="" required=""></textarea>
+		</p>
+
+		<p>
+			<button id="rotular">Rotular código...</button>
+			<button id="novo_rot">Nova verificação</button>
+		</p>
+
+	<div id="rotulado"></div>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		$('#novo_rot').attr("disabled", true);
+
+		$('#rotular').click(function() {
+			$.ajax({
+				type 		: 'post',
+				url			: 'main.php',
+				data 		: 'codigo_fonte='+ $('#codigo_fonte').val(),
+				dataType	: 'html',
+				success : function(response){
+					$('#rotulado').prepend(response);
+					$('#rotular').attr("disabled", true);
+					$('#novo_rot').attr("disabled", false);
+				}
+			});
+		});
+
+		$('#novo_rot').click(function() {
+			$('#codigo_fonte').val('');
+			$('#codigo_fonte').focus();
+			$('#rotulado').empty();
+			$('#rotular').attr("disabled", false);
+			$('#novo_rot').attr("disabled", true);
+		});	
+
+	});
+</script>
 
 </body>
 </html>
