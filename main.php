@@ -55,6 +55,3 @@ class Tradutor
 
 $tradutor = new Tradutor();
 $fonte = $tradutor->divide_texto( $codigo_fonte );
-
-
-
