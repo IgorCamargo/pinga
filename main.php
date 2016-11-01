@@ -1,46 +1,5 @@
 <?php
 
-$codigo_fonte = $_POST["codigo_fonte"];
-
-class Tradutor
-{
-
-    public function quebra_frase( $texto )    // função que analisa por linha
-    {
-        $arquivo = "codigo_fonte.txt";
-
-        if ( file_exists($arquivo) )
-        {
-            $abrir = fopen( $arquivo, "w" );
-            fwrite( $abrir, $texto );
-            fclose( $abrir );
-        }
-
-        $linhas = file ( $arquivo );
-        $numero_de_linha = 0;
-
-        foreach ( $linhas as $linhas_num => $linha )
-        {
-            echo "<br>".$frase[$numero_de_linha] = "Linha{$linhas_num} ".htmlspecialchars( $linha );
-            $numero_de_linha++;
-        }
-
-        $frases_informacao = array(
-            "numero_de_linha"   => $numero_de_linha,
-            "frase"             => $frase
-        );
-
-        return $frases_informacao;
-    }
-
-}
-
-$tradutor = new Tradutor();
-$fonte = $tradutor->quebra_frase( $codigo_fonte );
-
-
-
-
 /*
     texto de entrada
         abcabdcbadbc
@@ -55,3 +14,47 @@ $fonte = $tradutor->quebra_frase( $codigo_fonte );
             função A ( linhaX )
             função B ( linhaX )
             função C ( linhaX )
+
+*/
+
+$codigo_fonte = $_POST["codigo_fonte"];
+
+class Tradutor
+{
+
+    public function divide_texto( $texto )
+    /* Função que divide o texto em linhas, colocando cada linha em um índice do array. */
+    {
+
+        try {
+
+            $arquivo = "codigo_fonte.txt";
+
+            if ( file_exists($arquivo) )
+            /* Prepara o arquivo para a leitura. */
+            {
+                $abrir = fopen( $arquivo, "w" );
+                fwrite( $abrir, $texto );
+                fclose( $abrir );
+            }
+
+            $linhas = file ( $arquivo ); // Separa as linhas do arquivo em um array.
+
+            $linhas_informacao = array(
+                "linha"             => $linhas
+            );
+
+            return $linhas_informacao;
+
+        } catch (Exception $e) {
+            echo 'Ocorreu um erro ao tentar dividir o código analisado em linhas: ',  $e->getMessage(), "\n";
+        }
+    }
+
+}
+
+$tradutor = new Tradutor();
+$fonte = $tradutor->divide_texto( $codigo_fonte );
+
+
+
