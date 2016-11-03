@@ -51,7 +51,12 @@ class Tradutor
         }
     }
 
+    public function analise_sintatica( $texto )
+    {
+        
+    }
+
 }
 
 $tradutor = new Tradutor();
-$fonte = $tradutor->divide_texto( $codigo_fonte );
+$fonte_fragmentado = $tradutor->divide_texto( $codigo_fonte );
