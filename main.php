@@ -10,11 +10,9 @@
             linha 2 - abcabdcbadbc
 
     para cada linha
-        analisa a linha identificando as palavras chaves
-            função A ( linhaX )
-            função B ( linhaX )
-            função C ( linhaX )
-
+        função realiza a análise léxica
+        função realiza a análise sintática
+        função realiza a tradução
 */
 
 $codigo_fonte = $_POST["codigo_fonte"];
@@ -23,7 +21,7 @@ class Tradutor
 {
 
     public function divide_texto( $texto )
-    /* Função que divide o texto em linhas, colocando cada linha em um índice do array. */
+    /* Função que divide o texto em linhas, atribuindo cada linha em um array. */
     {
 
         try {
@@ -42,6 +40,7 @@ class Tradutor
 
             $linhas_informacao = array(
                 "linha"             => $linhas
+
             );
 
             return $linhas_informacao;
@@ -51,12 +50,35 @@ class Tradutor
         }
     }
 
+    public function analise_lexica( $texto )
+    {
+        // ao identificar um erro, parar tradução?
+    }
+
     public function analise_sintatica( $texto )
     {
-        
+
+    }
+
+    public function traducao( $texto )
+    {
+        // exemplo:     str_replace('vamos beber', '<?php');
     }
 
 }
 
 $tradutor = new Tradutor();
 $fonte_fragmentado = $tradutor->divide_texto( $codigo_fonte );
+
+
+/*
+OBS DO TRABALHO
+léxico
+sintático
+traduzir o código pinga para php
+
+semântica (não precisa)
+
+AO IDENTIFICAR A CRIAÇÃO DE UM IF, POR EXEMPLO, CRIA UM BLOCO DE CÓDIGO, E SE DENTRO DESSE IF HAVER OUTRO IF, CRIADO OUTRO BLOCO DE CÓDIGO
+
+*/
