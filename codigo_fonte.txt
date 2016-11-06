@@ -1,16 +1,16 @@
-<?php
+vamos beber
 
-function calcularSoma( $valor1, $valor2 ) {
+prepara uma calcularSoma( pinga valor1, pinga $valor2) {
 
-	$valor3 = $valor1   $valor2;
+	pinga valor3 = pinga valor1   pinga valor2;
 
-	return $valor3;
+	deu por hoje pinga valor3;
 }
  
-$resultado = calcularSoma( 1, 2 );
+pinga resultado = calcularSoma( 1, 2 );
 
-for ( $x = 0; $x <= $resultado; $x   ) {
-	if ( $x > 1 ) {
-		echo $resultado."<br>";
+beber pinga x = 0 até pinga x <= pinga resultado assim esqueço pinga x   {
+	51 $x > 1 é uma boa ideia {
+		solta a cana pinga resultado."<br>";
 	}
 }

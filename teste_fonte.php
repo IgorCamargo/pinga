@@ -16,6 +16,7 @@ for ( $x = 0; $x <= $resultado; $x++ ) {
 }
 
 /*
+
 vamos beber
 
 prepara uma calcularSoma( pinga valor1, pinga $valor2) {
