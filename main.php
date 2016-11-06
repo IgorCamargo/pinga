@@ -71,108 +71,106 @@ class Tradutor
         //     print_r($t);
         //     echo "<br>";
         // }
-            $palavra_reservada = array(
-                    "/\bvamos beber\b/i",
-                    "/\bsem bebida acabou a festa\b/i",
-                    "/\bpago a rodada de\b/i",
-                    "/\bvomito\b/i",
-                    "/\bbirita\b/i",
-                    "/\bprepara uma\b/i",
-                    "/\bdeu por hoje\b/i",
-                    "/\btomar\b/i",
-                    "/\btransformando dragao em princesa se\b/i",
-                    "/\btropica\b/i",
-                    "/\b51\b/i",
-                    "/\bbavaria!\b/i",
-                    "/\bso mais uma se\b/i",
-                    "/{|}/",
-                );
+        $palavra_reservada = array(
+            "/\bvamos beber\b/i",
+            "/\bsem bebida acabou a festa\b/i",
+            "/\bpago a rodada de\b/i",
+            "/\bvomito\b/i",
+            "/\bbirita\b/i",
+            "/\bprepara uma\b/i",
+            "/\bdeu por hoje\b/i",
+            "/\btomar\b/i",
+            "/\btransformando dragao em princesa se\b/i",
+            "/\btropica\b/i",
+            "/\b51\b/i",
+            "/\bbavaria!\b/i",
+            "/\bso mais uma se\b/i",
+            "/{|}/",
+        );
 
-                $operador = array(
-                    "+",
-                    "-",
-                    "*",
-                    "/",
-                    // aqui não tenho certeza se são operadores
-                    "=",
-                    "++",
-                    "==",
-                    "<",
-                    ">",
-                    "<=",
-                    ">=",
-                    "!",
-                    "!=",
-                    "<>",
-                    "&&",
-                    "||"
-                );
+        $operador = array(
+            "+",
+            "-",
+            "*",
+            "/",
+            // aqui não tenho certeza se são operadores
+            "=",
+            "++",
+            "==",
+            "<",
+            ">",
+            "<=",
+            ">=",
+            "!",
+            "!=",
+            "<>",
+            "&&",
+            "||"
+        );
 
-                $funcao_variavel = array(
-                    "/\bpinga\b/i",
-                    "/\b[^0-9A-Za-z]\b/"
-                );
+        $funcao_variavel = array(
+            "/\bpinga\b/i",
+            "/\b[^0-9A-Za-z]\b/"
+        );
 
-                foreach ( $texto["frase"] as $linha )
+        foreach ( $texto["frase"] as $linha )
+        {
+            $palavras_linha = explode( ' ', $linha );
+
+
+            print_r($palavras_linha);
+            echo " ||| teste1<br>";
+            print_r($linha);
+            echo " ||| teste2<br><br>";
+
+
+
+            // aqui analiso cada palavra de cada frase
+            for ( $i=0; $i < count( $palavras_linha ); $i++ )
+            {
+                // PALAVRA RESERVADA
+                if ( preg_match( "/\bvamos\b/i" , $palavras_linha[$i] ) )
                 {
-                    $palavras_linha = explode( ' ', $linha );
-
-
-                    print_r($palavras_linha);
-                    echo " ||| teste1<br>";
-                    print_r($linha);
-                    echo " ||| teste2<br><br>";
-
-
-
-                    // aqui analiso cada palavra de cada frase
-                    for ( $i=0; $i < count( $palavras_linha ); $i++ )
+                    if ( preg_match( "/\bbeber\b/i" , $palavras_linha[$i+1] ) )
                     {
-                        // PALAVRA RESERVADA
-                        foreach ( $palavra_reservada as $pr )
-                        {
-                            if ( preg_match( $pr , $palavras_linha[$i] ) )
-                            {
-                                echo $linha."<br>",
-                                "<b>".$palavras_linha[$i]." | Palavra Reservada</b><br>",
-                                "Expressão Regular: ".$pr."<br></br>";
-                            }
-                        }
-                        // OPERADOR
-                        foreach ( $operador as $op )
-                        {
-                            if ( strstr( $palavras_linha[$i], $op ) )
-                            {
-                                echo $linha."<br>",
-                                "<b>".$palavras_linha[$i]." | Operador</b><br>",
-                                "Expressão Regular: ".$op."<br></br>";
-                            }
-                        }
-
-                        // FUNÇÃO e VARIÁVEL
-                        foreach ( $funcao_variavel as $fu )
-                        {
-                            // identifica função *** AJUSTAR
-                            // if ( preg_match( $fu , $palavras_linha[$i] ) )
-                            // {
-                            //     echo $linha."<br>",
-                            //     "<b>".$palavras_linha[$i]." | Função</b><br>",
-                            //     "Expressão Regular: ".$fu."(<br></br>";
-                            // }
-                            // identifica variável
-                            if ( strstr( $palavras_linha[$i], "$" ) > 0 )
-                            {
-                                echo $linha."<br>",
-                                "<b>".$palavras_linha[$i]." | Variável</b><br>",
-                                "Expressão Regular: ".$fu."$<br></br>";
-                            }
-                        }
-
+                        echo $linha."<br>",
+                        "<b>".$palavras_linha[$i]." ".$palavras_linha[$i+1]." | Palavra Reservada</b><br>",
+                        "Expressão Regular: /\bvamos\b/i e /\bbeber\b/i<br></br>";
                     }
-
                 }
-                echo "<br>Número total de linhas do código fonte = ".$texto["total_de_linha"];
+            }
 
+                            // OPERADOR
+                            // foreach ( $operador as $op )
+                            // {
+                            //     if ( strstr( $palavras_linha[$i], $op ) )
+                            //     {
+                            //         echo $linha."<br>",
+                            //         "<b>".$palavras_linha[$i]." | Operador</b><br>",
+                            //         "Expressão Regular: ".$op."<br></br>";
+                            //     }
+                            // }
+
+                            // FUNÇÃO e VARIÁVEL
+                            // foreach ( $funcao_variavel as $fu )
+                            // {
+                                // identifica função *** AJUSTAR
+                                // if ( preg_match( $fu , $palavras_linha[$i] ) )
+                                // {
+                                //     echo $linha."<br>",
+                                //     "<b>".$palavras_linha[$i]." | Função</b><br>",
+                                //     "Expressão Regular: ".$fu."(<br></br>";
+                                // }
+                                // identifica variável
+                            //     if ( strstr( $palavras_linha[$i], "$" ) > 0 )
+                            //     {
+                            //         echo $linha."<br>",
+                            //         "<b>".$palavras_linha[$i]." | Variável</b><br>",
+                            //         "Expressão Regular: ".$fu."$<br></br>";
+                            //     }
+                            // }
+        }
+        echo "<br>Número total de linhas do código fonte = ".$texto["total_de_linha"];
     }
 
     public function analise_sintatica( $texto )
