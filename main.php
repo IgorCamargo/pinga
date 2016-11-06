@@ -37,10 +37,17 @@ class Tradutor
             }
 
             $linhas = file ( $arquivo ); // Separa as linhas do arquivo em um array.
+            $numero_de_linha = 0;
+
+            foreach ( $linhas as $linhas_num => $linha )
+            {
+                $frase[$numero_de_linha] = htmlspecialchars( $linha ); // *** NÃO IDENTIFICA O SINAL DE +
+                $numero_de_linha++;
+            }
 
             $linhas_informacao = array(
-                "linha"             => $linhas
-
+                "total_de_linha"   => $numero_de_linha,
+                "frase"             => $frase
             );
 
             return $linhas_informacao;
@@ -51,11 +58,25 @@ class Tradutor
     }
 
     public function analise_lexica( $texto )
+    /* Identifica TOKENS e LEXEMAS. Só retorna erro se o determinado símbolo não é reconhecido.
+    No tradutor você utilizará a análise léxica para identificar os símbolos existentes no seu programa.
+    Exemplo, o que é variável, o que é chamada de função, e o que é palavra reservada.
+    Após identificar esses símbolos, ficará mais fácil para você realizar a tradução.
+    */
     {
-        // ao identificar um erro, parar tradução?
+
+        echo $texto["total_de_linha"]."<br>";
+
+        foreach ($texto['frase'] as $t) {
+            // foreach ($t as $linhas_num => $k) {
+                print_r($t);
+                echo "<br>";
+            // }
+        }
     }
 
     public function analise_sintatica( $texto )
+    /* Identifica erros digitados no código, erros de escritas. */
     {
 
     }
@@ -69,6 +90,7 @@ class Tradutor
 
 $tradutor = new Tradutor();
 $fonte_fragmentado = $tradutor->divide_texto( $codigo_fonte );
+$fonte_lexico = $tradutor->analise_lexica( $fonte_fragmentado );
 
 
 /*
