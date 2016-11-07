@@ -118,17 +118,18 @@ class Tradutor
             $palavras_linha = explode( ' ', $linha );
 
 
-            print_r($palavras_linha);
-            echo " ||| teste1<br>";
-            print_r($linha);
-            echo " ||| teste2<br><br>";
+            // print_r($palavras_linha);
+            // echo " ||| teste1<br>";
+            // print_r($linha);
+            // echo " ||| teste2<br><br>";
 
 
 
             // aqui analiso cada palavra de cada frase
             for ( $i=0; $i < count( $palavras_linha ); $i++ )
             {
-                // PALAVRA RESERVADA
+                
+                // PALAVRAS Reservada** AJUSTAR MELHOR A LOGICA
                 if ( preg_match( "/\bvamos\b/i" , $palavras_linha[$i] ) )
                 {
                     if ( preg_match( "/\bbeber\b/i" , $palavras_linha[$i+1] ) )
@@ -137,7 +138,31 @@ class Tradutor
                         "<b>".$palavras_linha[$i]." ".$palavras_linha[$i+1]." | Palavra Reservada</b><br>",
                         "Expressão Regular: /\bvamos\b/i e /\bbeber\b/i<br></br>";
                     }
+                    else
+                    {
+                        echo "ERRO! Comando esperaro 'vamos beber' não foi reconhecido na linha ".($i+1);
+                    }
                 }
+
+                if ( preg_match( "/\bacabou\b/i" , $palavras_linha[$i] ) )
+                {
+                    if ( preg_match( "/\ba\b/i" , $palavras_linha[$i+1] ) )
+                    {
+                        if ( preg_match( "/\bbebida\b/i" , $palavras_linha[$i+2] ) )
+                        {
+                            echo $linha."<br>",
+                            "<b>".$palavras_linha[$i]." ".$palavras_linha[$i+1]." ".$palavras_linha[$i+2]." | Palavra Reservada</b><br>",
+                            "Expressão Regular: /\bacabou\b/i e /\ba\b/i e /\bbebida\b/i<br></br>";
+                        }
+                    }
+                    else
+                    {
+                        echo "ERRO! Comando esperaro 'vamos beber' não foi reconhecido na linha ".($i+1);
+                    }
+                }
+
+
+
             }
 
                             // OPERADOR

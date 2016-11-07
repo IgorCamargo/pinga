@@ -1,4 +1,4 @@
-vamos beber
+vamos
 
 prepara uma calcularSoma( pinga valor1, pinga $valor2) {
 
