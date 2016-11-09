@@ -28,8 +28,8 @@ prepara uma calcularSoma( pinga valor1, pinga $valor2) {
  
 pinga resultado = calcularSoma( 1, 2 );
 
-beber pinga x = 0 até pinga x <= pinga resultado assim esqueço pinga x++ {
-	51 $x > 1 é uma boa ideia {
-		solta a cana pinga resultado."<br>";
+beber pinga x=0 até pinga x<= pinga resultado assim esqueço pinga x++ {
+	51 $x > 1 boa ideia? {
+		solta cana pinga resultado."<br>";
 	}
 }
