@@ -17,19 +17,19 @@ for ( $x = 0; $x <= $resultado; $x++ ) {
 
 /*
 
-vamos beber
+vamosBeber
 
-prepara uma calcularSoma( pinga valor1, pinga $valor2) {
+prepara calcularSoma ( pinga valor1 , pinga valor2 ) {
 
-	pinga valor3 = pinga valor1 + pinga valor2;
+	pinga valor3 = pinga valor1 + pinga valor2 ;
 
-	deu por hoje pinga valor3;
+	deuPorHoje pinga valor3 ;
 }
  
-pinga resultado = calcularSoma( 1, 2 );
+pinga resultado = calcularSoma( 1 , 2 ) ;
 
-beber pinga x=0 até pinga x<= pinga resultado assim esqueço pinga x++ {
-	51 $x > 1 boa ideia? {
-		solta cana pinga resultado."<br>";
+bebedeira pinga x = 0 , pinga x <= pinga resultado , pinga x++ {
+	51 $x > 1 boaIdeia? {
+		soltaCana pinga resultado . "<br>" ;
 	}
 }
