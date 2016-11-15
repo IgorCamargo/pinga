@@ -73,71 +73,47 @@ class Tradutor
             $palavras_linha = explode( ' ', $linha );
             $cont_palavras_linha = count( $palavras_linha );
 
+            echo "<br>Linha<br>";
             print_r( $palavras_linha );
+            echo "<br>";
 
             echo "<br>";
 
-            for ($i=0; $i < $cont_palavras_linha; $i++) { 
-echo $i."<br>";
-
-                if ( $this->p_reservada($palavras_linha[$i], $linha, $cont_linha, $i) ) {
-                    echo "reservada<br>";
+            for ($i=0; $i < $cont_palavras_linha; $i++)
+            { 
+                if ( $inf_token[$i] = $this->p_reservada($palavras_linha[$i], $linha, $cont_linha, $i) ) {
+                    print_r($inf_token[$i]);
+                    $inf_linha[$i] = $inf_token[$i];
+                    // echo "reservada<br>";
+                    echo "<br>";
                 }
-                elseif ( $this->p_func_var($palavras_linha[$i], $linha, $cont_linha, $i)  ) {
-                    echo "func ou var<br>";
+                elseif ( $inf_token[$i] = $this->p_func_var($palavras_linha[$i], $linha, $cont_linha, $i)  ) {
+                    print_r($inf_token[$i]);
+                    $inf_linha[$i] = $inf_token[$i];
+                    // echo "func ou var<br>";
+                    echo "<br>";
                 }
-                elseif ( $this->p_simb_oper($palavras_linha[$i], $linha, $cont_linha, $i)  ) {
-                    echo "simb ou oper<br>";
+                elseif ( $inf_token[$i] = $this->p_simb_oper($palavras_linha[$i], $linha, $cont_linha, $i)  ) {
+                    print_r($inf_token[$i]);
+                    $inf_linha[$i] = $inf_token[$i];
+                    // echo "simb ou oper<br>";
+                    echo "<br>";
                 }
-                
-
-                // PALAVRA RESERVADA
-                // foreach ( $palavra_reservada as $pr )
-                // {
-                //     if ( ($i < $cont_palavras_linha) && (preg_match( $pr , $palavras_linha[$i] )) )
-                //     {
-                //         echo "<br>Palavra: <b>".$palavras_linha[$i]."</b><br>",
-                //         "Linha: <b>".$linha."</b><br>",
-                //         "N° linha: <b>".$cont_linha."</b><br>",
-                //         "N° palavra: <b>".($i+1)."</b><br>",
-                //         "Tipo: Palavra Reservada: <b>".$palavras_linha[$i]."</b><br>",
-                //         "Expressão Regular: <b>".$pr."</b><br></br>";
-                //         $i++;
-                //     }
-                // }
-
-                // FUNÇÃO ou VARIÁVEL
-                // foreach ( $funcao_variavel as $fv )
-                // {
-                //     if ( ($i < $cont_palavras_linha) && (preg_match( $fv , $palavras_linha[$i] )) )
-                //     {
-                //         echo "<br>Palavra: <b>".$palavras_linha[$i]."</b><br>",
-                //         "Linha: <b>".$linha."</b><br>",
-                //         "N° linha: <b>".$cont_linha."</b><br>",
-                //         "N° palavra: <b>".($i+1)."</b><br>",
-                //         "Tipo: Função ou Variável: <b>".$palavras_linha[$i]."</b><br>",
-                //         "Expressão Regular: <b>".$fv."</b><br></br>";
-                //         $i++;
-                //     }
-                // }
-
-                // SIMBOLOS OU OPERADORES
-                // foreach ( $opererador as $op )
-                // {
-                //     if ( ($i < $cont_palavras_linha) && (strstr( $palavras_linha[$i], $op )) )
-                //     {
-                //         echo "<br>Palavra: <b>".$palavras_linha[$i]."</b><br>",
-                //         "Linha: <b>".$linha."</b><br>",
-                //         "N° linha: <b>".$cont_linha."</b><br>",
-                //         "N° palavra: <b>".($i+1)."</b><br>",
-                //         "Tipo: <b>Simbolo ou Operador ( ".$palavras_linha[$i]." )</b><br>",
-                //         "Expressão Regular: <b>".$op."</b><br></br>";
-                //         $i++;
-                //     }
-                // }
-
+                else {
+                    $inf_token[$i] = $this->p_invalida($palavras_linha[$i], $linha, $cont_linha, $i);
+                    print_r($inf_token[$i]);
+                    $inf_linha[$i] = $inf_token[$i];
+                    echo "<br>";
+                }
             }
+            // echo "<br> ------linha------ <br>";
+            // print_r($inf_linha);
+            // $inf_codigo[($cont_linha-1)] = $inf_linha;
+            // echo "<br> ----------------- <br>";
         }
+        echo "<br> ------codigo----- <br>";
+        print_r($inf_codigo);
+        echo "<br> ----------------- <br>";
 
         echo "<br>Número total de linhas do código fonte = ".$texto["total_de_linha"];
     }
@@ -172,13 +148,19 @@ echo $i."<br>";
         {
             if ( preg_match($pr , $palavra) )
             {
-                echo "<br>Palavra: <b>".$palavra."</b><br>",
-                "Linha: <b>".$linha."</b><br>",
-                "N° linha: <b>".$cont_linha."</b><br>",
-                "N° palavra: <b>".($i+1)."</b><br>",
-                "Tipo: Palavra Reservada: <b>".$palavra."</b><br>",
-                "Expressão Regular: <b>".$pr."</b><br></br>";
-                return true;
+                $inf_token = array(
+                    "token"     => $palavra,
+                    "n_linha"   => $cont_linha,
+                    "n_palavra" => ($i+1),
+                    "tipo"      => "palavra reservada"
+                );
+                // echo "<br>Palavra: <b>".$palavra."</b><br>",
+                // "Linha: <b>".$linha."</b><br>",
+                // "N° linha: <b>".$cont_linha."</b><br>",
+                // "N° palavra: <b>".($i+1)."</b><br>",
+                // "Tipo: Palavra Reservada: <b>".$palavra."</b><br>",
+                // "Expressão Regular: <b>".$pr."</b><br></br>";
+                return $inf_token;
             }
         }
         return false;
@@ -189,20 +171,26 @@ echo $i."<br>";
     {
         // ER
         $funcao_variavel = array(
-            "/[0-9a-zA-Z]$/"
+            "/[0-9a-zA-Z_]$/"
         );
 
         foreach ( $funcao_variavel as $fv )
         {
             if ( preg_match($fv , $palavra) )
             {
-                echo "<br>Palavra: <b>".$palavra."</b><br>",
-                "Linha: <b>".$linha."</b><br>",
-                "N° linha: <b>".$cont_linha."</b><br>",
-                "N° palavra: <b>".($i+1)."</b><br>",
-                "Tipo: Função ou Variável: <b>".$palavra."</b><br>",
-                "Expressão Regular: <b>".$fv."</b><br></br>";
-                return true;
+                $inf_token = array(
+                    "token"     => $palavra,
+                    "n_linha"   => $cont_linha,
+                    "n_palavra" => ($i+1),
+                    "tipo"      => "função ou variável"
+                );
+                // echo "<br>Palavra: <b>".$palavra."</b><br>",
+                // "Linha: <b>".$linha."</b><br>",
+                // "N° linha: <b>".$cont_linha."</b><br>",
+                // "N° palavra: <b>".($i+1)."</b><br>",
+                // "Tipo: Função ou Variável: <b>".$palavra."</b><br>",
+                // "Expressão Regular: <b>".$fv."</b><br></br>";
+                return $inf_token;
             }
         }
         return false;
@@ -234,22 +222,68 @@ echo $i."<br>";
             "(",
             ")",
             ",",
-            ";"
+            ";",
+            "."
         );
    
         foreach ( $opererador as $op )
         {
             if ( strstr($palavra, $op) )
             {
-                echo "<br>Palavra: <b>".$palavra."</b><br>",
-                "Linha: <b>".$linha."</b><br>",
-                "N° linha: <b>".$cont_linha."</b><br>",
-                "N° palavra: <b>".($i+1)."</b><br>",
-                "Tipo: <b>Simbolo ou Operador ( ".$palavra." )</b><br>",
-                "Expressão Regular: <b>".$op."</b><br></br>";
-                return true;
+                $inf_token = array(
+                    "token"     => $palavra,
+                    "n_linha"   => $cont_linha,
+                    "n_palavra" => ($i+1),
+                    "tipo"      => "símbolo ou operador"
+                );
+                // echo "<br>Palavra: <b>".$palavra."</b><br>",
+                // "Linha: <b>".$linha."</b><br>",
+                // "N° linha: <b>".$cont_linha."</b><br>",
+                // "N° palavra: <b>".($i+1)."</b><br>",
+                // "Tipo: <b>Simbolo ou Operador ( ".$palavra." )</b><br>",
+                // "Expressão Regular: <b>".$op."</b><br></br>";
+                return $inf_token;
             }
         }
+        return false;
+    }
+
+    // *** AJUSTAR PARA IDENTIFICAR STRING ***
+    // private function p_string( $palavra, $linha, $cont_linha, $i )
+    // /* Identifica se a palavra analisada é uma string válida. */
+    // {
+    //     if ( is_string($palavra) ) {
+    //         echo "STRING<br>";
+    //     }
+    //     var_dump($palavra);
+    //     echo "<br>";
+    //     $inf_token = array(
+    //         "token"     => $palavra,
+    //         "n_linha"   => $cont_linha,
+    //         "n_palavra" => ($i+1),
+    //         "tipo"      => "PALAVRA NÃO IDENTIFICADA"
+    //     );
+    //     return $inf_token;
+    // }
+
+    private function p_invalida( $palavra, $linha, $cont_linha, $i )
+    /* Identifica se a palavra analisada é nada ou não identificada. */
+    {
+        if ( preg_match('/[\x21-\x7E]/' , $palavra) ) {
+            $inf_token = array(
+                "token"     => $palavra,
+                "n_linha"   => $cont_linha,
+                "n_palavra" => ($i+1),
+                "tipo"      => "PALAVRA NÃO IDENTIFICADA"
+            );
+            return $inf_token;
+        }
+        // elseif ( preg_match('/[\x22[\x20-\x7E]\x22|\x27[\x20-\x7E]\x27]/' , $palavra) ) {
+        //     echo "STRING<br>";
+        // }
+        // else{
+        //     echo "espaço vazio<br>";
+        // }
         return false;
     }
 
