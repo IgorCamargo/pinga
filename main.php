@@ -99,6 +99,12 @@ class Tradutor
                     // echo "simb ou oper<br>";
                     echo "<br>";
                 }
+                // elseif ( $inf_token[$i] = $this->p_string($palavras_linha[$i], $linha, $cont_linha, $i)  ) {
+                //     print_r($inf_token[$i]);
+                //     $inf_linha[$i] = $inf_token[$i];
+                //     // echo "simb ou oper<br>";
+                //     echo "<br>";
+                // }
                 else {
                     $inf_token[$i] = $this->p_invalida($palavras_linha[$i], $linha, $cont_linha, $i);
                     print_r($inf_token[$i]);
@@ -108,7 +114,7 @@ class Tradutor
             }
             // echo "<br> ------linha------ <br>";
             // print_r($inf_linha);
-            // $inf_codigo[($cont_linha-1)] = $inf_linha;
+            $inf_codigo[($cont_linha-1)] = $inf_linha;
             // echo "<br> ----------------- <br>";
         }
         echo "<br> ------codigo----- <br>";
@@ -116,6 +122,8 @@ class Tradutor
         echo "<br> ----------------- <br>";
 
         echo "<br>Número total de linhas do código fonte = ".$texto["total_de_linha"];
+
+        return $inf_codigo;
     }
 
     private function p_reservada( $palavra, $linha, $cont_linha, $i )
@@ -278,12 +286,6 @@ class Tradutor
             );
             return $inf_token;
         }
-        // elseif ( preg_match('/[\x22[\x20-\x7E]\x22|\x27[\x20-\x7E]\x27]/' , $palavra) ) {
-        //     echo "STRING<br>";
-        // }
-        // else{
-        //     echo "espaço vazio<br>";
-        // }
         return false;
     }
 
