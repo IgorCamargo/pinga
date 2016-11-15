@@ -65,6 +65,7 @@ class Tradutor
     {
 
         $cont_linha = 0;
+        $inf_codigo = array();
 
         // para cada linha do código fonte realiza as identificações
         foreach ( $texto["linha"] as $linha )
@@ -73,62 +74,65 @@ class Tradutor
             $palavras_linha = explode( ' ', $linha );
             $cont_palavras_linha = count( $palavras_linha );
 
-            echo "<br>Linha<br>";
-            print_r( $palavras_linha );
-            echo "<br>";
+            // echo "<br>--------- Linha ---------<br>";
+            // print_r( $palavras_linha );
+            // echo "<br>-------------------------<br>";
 
-            echo "<br>";
-
+            // para cada palavra realiza a análise
             for ($i=0; $i < $cont_palavras_linha; $i++)
             { 
-                if ( $inf_token[$i] = $this->p_reservada($palavras_linha[$i], $linha, $cont_linha, $i) ) {
-                    print_r($inf_token[$i]);
-                    $inf_linha[$i] = $inf_token[$i];
+                if ( $inf_linha[$i] = $this->p_reservada($palavras_linha[$i], $linha, $cont_linha, $i) ) {
+                    // print_r($inf_linha[$i]);
                     // echo "reservada<br>";
-                    echo "<br>";
+                    array_push( $inf_codigo, $inf_linha[$i] );
                 }
-                elseif ( $inf_token[$i] = $this->p_func_var($palavras_linha[$i], $linha, $cont_linha, $i)  ) {
-                    print_r($inf_token[$i]);
-                    $inf_linha[$i] = $inf_token[$i];
+                elseif ( $inf_linha[$i] = $this->p_func_var($palavras_linha[$i], $linha, $cont_linha, $i) ) {
+                    // print_r($inf_linha[$i]);
                     // echo "func ou var<br>";
-                    echo "<br>";
+                    array_push( $inf_codigo, $inf_linha[$i] );
                 }
-                elseif ( $inf_token[$i] = $this->p_simb_oper($palavras_linha[$i], $linha, $cont_linha, $i)  ) {
-                    print_r($inf_token[$i]);
-                    $inf_linha[$i] = $inf_token[$i];
+                elseif ( $inf_linha[$i] = $this->p_simb_oper($palavras_linha[$i], $linha, $cont_linha, $i) ) {
+                    // print_r($inf_linha[$i]);
                     // echo "simb ou oper<br>";
-                    echo "<br>";
+                    array_push( $inf_codigo, $inf_linha[$i] );
                 }
-                // elseif ( $inf_token[$i] = $this->p_string($palavras_linha[$i], $linha, $cont_linha, $i)  ) {
-                //     print_r($inf_token[$i]);
-                //     $inf_linha[$i] = $inf_token[$i];
+                // elseif ( $inf_linha[$i] = $this->p_string($palavras_linha[$i], $linha, $cont_linha, $i) ) {
+                //     print_r($inf_linha[$i]);
                 //     // echo "simb ou oper<br>";
                 //     echo "<br>";
                 // }
-                else {
-                    $inf_token[$i] = $this->p_invalida($palavras_linha[$i], $linha, $cont_linha, $i);
-                    print_r($inf_token[$i]);
-                    $inf_linha[$i] = $inf_token[$i];
-                    echo "<br>";
+                elseif ( $inf_linha[$i] = $this->p_invalida($palavras_linha[$i], $linha, $cont_linha, $i) ) {
+                    // $inf_linha[$i] = "erro";
+                    // print_r($inf_linha[$i]);
+                    array_push( $inf_codigo, $inf_linha[$i] );
+                // } else {
+                    // $inf_linha[$i] = "espaço branco";
+                    // print_r($inf_linha[$i]);
+                    // array_push( $inf_codigo, $inf_linha[$i] );
                 }
             }
-            // echo "<br> ------linha------ <br>";
-            // print_r($inf_linha);
-            $inf_codigo[($cont_linha-1)] = $inf_linha;
-            // echo "<br> ----------------- <br>";
+            // echo "<br>EEEEIIIIITTTAAA<br>";
+            // print_r( $inf_codigo );
+            // echo "<br>===============<br>";
         }
-        echo "<br> ------codigo----- <br>";
-        print_r($inf_codigo);
-        echo "<br> ----------------- <br>";
+        // echo "<br> ------codigo----- <br>";
+        // print_r($inf_codigo);
+        // echo "<br> ----------------- <br>";
 
-        echo "<br>Número total de linhas do código fonte = ".$texto["total_de_linha"];
+        // echo "<br>Número total de linhas do código fonte = ".$texto["total_de_linha"];
 
-        return $inf_codigo;
+        $lex_codigo = array(
+            "inf_codigo"    => $inf_codigo,
+            "total_linhas"  => $texto["total_de_linha"]
+        );
+
+        return $lex_codigo;
     }
 
     private function p_reservada( $palavra, $linha, $cont_linha, $i )
     /* Identifica se a palavra analisada é reservada. */
     {
+        $palavra = trim( $palavra );
         // array com as palavras reservadas da linguagem
         $palavra_reservada = array(
             "/\bvamosBeber\b/i",
@@ -177,6 +181,7 @@ class Tradutor
     private function p_func_var( $palavra, $linha, $cont_linha, $i )
     /* Identifica se a palavra analisada é função ou variável. */
     {
+        $palavra = trim( $palavra );
         // ER
         $funcao_variavel = array(
             "/[0-9a-zA-Z_]$/"
@@ -207,6 +212,7 @@ class Tradutor
     private function p_simb_oper( $palavra, $linha, $cont_linha, $i )
     /* Identifica se a palavra analisada é simbolo ou operador. */
     {
+        $palavra = trim( $palavra );
         // array com símbolos e operadores
         $opererador = array(
             "+",
@@ -278,6 +284,9 @@ class Tradutor
     /* Identifica se a palavra analisada é nada ou não identificada. */
     {
         if ( preg_match('/[\x21-\x7E]/' , $palavra) ) {
+
+            $palavra = trim( $palavra );
+
             $inf_token = array(
                 "token"     => $palavra,
                 "n_linha"   => $cont_linha,
@@ -286,13 +295,72 @@ class Tradutor
             );
             return $inf_token;
         }
+        else {
+            $inf_token = array(
+                "token"     => $palavra,
+                "n_linha"   => $cont_linha,
+                "n_palavra" => ($i+1),
+                "tipo"      => "ESPAÇO EM BRANCO"
+            );
+            return $inf_token;
+        }
         return false;
     }
+
 
 
     public function analise_sintatica( $texto )
     /* Identifica erros digitados no código, erros de escritas. */
     {
+        echo "<br> total de linhas = ".$texto["total_linhas"]."<br>",
+        "Código = <br>";
+        // print_r($texto["inf_codigo"]);
+
+        // identificar os blocos de código
+        echo "<br> ==================== <br>";
+        
+        // sempre tem que ter esta abertura de código
+        // if ( $texto["inf_codigo"][0][0]["token"] == "vamosBeber" )
+        // {
+        //     echo "abertura correta";
+        // }
+        // else {
+        //     echo "ERRO - Esperado palavra reservada 'vamosBeber'<br>",
+        //     "Linha ".$texto["inf_codigo"][0][0]["n_linha"]." => ",
+        //     $texto["inf_codigo"][0][0]["token"];
+        // }
+
+        for ($i=0; $i < count( $texto["inf_codigo"] ); $i++) { 
+            // print_r( $texto["inf_codigo"][$i]["token"] );
+
+            // print_r($texto["inf_codigo"][$i]);
+
+            echo $token = $texto["inf_codigo"][$i]["token"];
+
+            // var_dump($token);
+
+            if ( $token === "soltaCana" ) {
+                echo "EAIEIAEIAIEIA";
+            }
+
+            echo "<br>";
+        }
+
+        // foreach ( $texto["inf_codigo"] as $linha ) {
+        //     // print_r( $linha );
+        //     echo $linha["token"];
+        //     echo "<br>";
+        //     // $linha["token"]."<br>";
+
+        //     // print_r($linha);
+
+        //     if ( $linha["token"] == "soltaCana" ) {
+        //         # code...
+        //     }
+
+        // }
+
+
 
     }
 
@@ -306,3 +374,4 @@ class Tradutor
 $tradutor = new Tradutor();
 $fonte_fragmentado = $tradutor->divide_texto( $codigo_fonte );
 $fonte_lexico = $tradutor->analise_lexica( $fonte_fragmentado );
+$fonte_sintatico = $tradutor->analise_sintatica( $fonte_lexico );

@@ -1,4 +1,4 @@
-vamosBeb
+vamosBeber
 
 prepara calcularSoma ( pinga valor1 , pinga valor2 ) {
 
@@ -6,7 +6,7 @@ prepara calcularSoma ( pinga valor1 , pinga valor2 ) {
 
 	deuPorHoje pinga valor3 ;
 }
- 
+
 pinga resultado = calcularSoma( 1 , 2 ) ;
 
 bebedeira pinga x = 0 , pinga x <= pinga resultado , pinga x ++ {
