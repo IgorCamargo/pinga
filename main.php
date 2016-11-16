@@ -330,30 +330,57 @@ class Tradutor
         //     $texto["inf_codigo"][0][0]["token"];
         // }
 
+        $cont_bloco = 0;
+
         for ($i=0; $i < count( $texto["inf_codigo"] ); $i++) { 
             // print_r( $texto["inf_codigo"][$i]["token"] );
 
             // print_r($texto["inf_codigo"][$i]);
 
-            echo $token = $texto["inf_codigo"][$i]["token"];
+            $token = $texto["inf_codigo"][$i];
+            echo $token["token"];
 
             // var_dump($token);
 
-            if ( $token === "soltaCana" )
+            // se for bloco, adiciona no contador
+            if ( $token["token"] == "{" ) {
+                $cont_bloco++;
+            } elseif ( $token["token"] == "}" ) {
+                $cont_bloco--;
+            }
+
+            // teste semantico
+            if ( $token["token"] === "soltaCana" )
             {
-                echo "EAIEIAEIAIEIA";
                 $pos_token = $texto["inf_codigo"][$i+1];
-
-                print_r($pos_token);
-
                 // if ( (!$this->p_string( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) || (!$this->p_func_var( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) )
                 if ( !$this->p_func_var($pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"]) )
                 {
-                    
+                    echo "<br>*parâmetro inválido na linha ".$pos_token["n_linha"]."*";
                 }
             }
 
-            echo "<br>";
+            if ( $token["token"] === "51" )
+            {
+                echo "<br>*numero da palavra= ".$token["n_palavra"];
+                echo "<br>"/*.max()*/;
+
+                // retorna o valor do último elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( $key["n_linha"] == $token["n_linha"] ) {
+                        $ultima_palavra = $key["n_palavra"];
+                    }
+                }
+                echo "<br>*ultima palavra= ".$ultima_palavra;;
+
+                // *********************************************
+            }
+
+            echo "<br>----<br>";
+        }
+
+        if ( $cont_bloco > 0 ) {
+            echo "ABERTURA|FECHAMENTO DE BLOCO INCORRETO!";
         }
 
         // foreach ( $texto["inf_codigo"] as $linha ) {
