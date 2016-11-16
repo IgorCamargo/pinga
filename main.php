@@ -339,8 +339,18 @@ class Tradutor
 
             // var_dump($token);
 
-            if ( $token === "soltaCana" ) {
+            if ( $token === "soltaCana" )
+            {
                 echo "EAIEIAEIAIEIA";
+                $pos_token = $texto["inf_codigo"][$i+1];
+
+                print_r($pos_token);
+
+                // if ( (!$this->p_string( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) || (!$this->p_func_var( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) )
+                if ( !$this->p_func_var($pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"]) )
+                {
+                    
+                }
             }
 
             echo "<br>";
@@ -359,8 +369,6 @@ class Tradutor
         //     }
 
         // }
-
-
 
     }
 
