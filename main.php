@@ -214,13 +214,14 @@ class Tradutor
     {
         $palavra = trim( $palavra );
         // array com símbolos e operadores
-        $opererador = array(
+        $operador = array(
             "+",
             "-",
             "*",
             "/",
             "=",
             "++",
+            "--",
             "==",
             "<",
             ">",
@@ -230,7 +231,10 @@ class Tradutor
             "!=",
             "<>",
             "&&",
-            "||",
+            "||"
+        );
+
+        $simbolo = array(
             "{",
             "}",
             "(",
@@ -240,7 +244,7 @@ class Tradutor
             "."
         );
    
-        foreach ( $opererador as $op )
+        foreach ( $operador as $op )
         {
             if ( strstr($palavra, $op) )
             {
@@ -248,7 +252,7 @@ class Tradutor
                     "token"     => $palavra,
                     "n_linha"   => $cont_linha,
                     "n_palavra" => ($i+1),
-                    "tipo"      => "símbolo ou operador"
+                    "tipo"      => "operador"
                 );
                 // echo "<br>Palavra: <b>".$palavra."</b><br>",
                 // "Linha: <b>".$linha."</b><br>",
@@ -259,6 +263,26 @@ class Tradutor
                 return $inf_token;
             }
         }
+        foreach ( $simbolo as $sim )
+        {
+            if ( strstr($palavra, $sim) )
+            {
+                $inf_token = array(
+                    "token"     => $palavra,
+                    "n_linha"   => $cont_linha,
+                    "n_palavra" => ($i+1),
+                    "tipo"      => "símbolo"
+                );
+                // echo "<br>Palavra: <b>".$palavra."</b><br>",
+                // "Linha: <b>".$linha."</b><br>",
+                // "N° linha: <b>".$cont_linha."</b><br>",
+                // "N° palavra: <b>".($i+1)."</b><br>",
+                // "Tipo: <b>Simbolo ou Operador ( ".$palavra." )</b><br>",
+                // "Expressão Regular: <b>".$op."</b><br></br>";
+                return $inf_token;
+            }
+        }
+
         return false;
     }
 
@@ -350,7 +374,8 @@ class Tradutor
             }
 
             // teste semantico
-            if ( $token["token"] === "soltaCana" )
+            // soltaCana PARÂMETRO | pinga PARÂMETRO
+            if ( ($token["token"] === "soltaCana") || ($token["token"] === "pinga") )
             {
                 $pos_token = $texto["inf_codigo"][$i+1];
                 // if ( (!$this->p_string( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) || (!$this->p_func_var( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) )
@@ -360,24 +385,150 @@ class Tradutor
                 }
             }
 
-            if ( $token["token"] === "51" )
+            // 51 PARÂMETRO boaIdeia?
+            elseif ( $token["token"] === "51" )
             {
-                echo "<br>*numero da palavra= ".$token["n_palavra"];
-                echo "<br>"/*.max()*/;
+                // primeiro elemento
+                $primeira_palavra = $token["n_palavra"];
 
-                // retorna o valor do último elemento
+                // retorna o valor do elemento
                 foreach ( $texto["inf_codigo"] as $key ) {
                     if ( $key["n_linha"] == $token["n_linha"] ) {
                         $ultima_palavra = $key["n_palavra"];
                     }
                 }
-                echo "<br>*ultima palavra= ".$ultima_palavra;;
+                // retorna o penultimo elemento (boaIdeia?)
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-1)) ) {
+                       $penultima_palavra = $key["token"];
+                    }
+                }
+                // retorna o segundo elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
+                        $parametro = $key["token"];
+                    }
+                }
 
-                // *********************************************
+                // testa validação de PARÂMETRO com operadores
+                if ( (!$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra)) || ( $penultima_palavra != "boaIdeia?" ) ) {
+                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                }
             }
+
+            // soMaisUmaSe PARÂMETRO | transformandoDragaoEmPrincesaSe PARÂMETRO
+            elseif ( ($token["token"] === "soMaisUmaSe") || ($token["token"] === "transformandoDragaoEmPrincesaSe") )
+            {
+                // primeiro elemento
+                $primeira_palavra = $token["n_palavra"];
+
+                // retorna o segundo elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
+                        $parametro = $key["token"];
+                    }
+                }
+
+                // testa validação de PARÂMETRO com operadores
+                if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
+                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                }
+            }
+
+            // tropica / transformandoDragaoEmPrincesaSe PARÂMETRO
+
+            // bebedeira PARÂMETRO , PARÂMETRO , PARÂMETRO
+            elseif ( $token["token"] === "bebedeira" )
+            {
+                // primeiro elemento
+                $primeira_palavra = $token["n_palavra"];
+
+                // retorna o segundo elemento
+                // 1° parametro
+                foreach ( $texto["inf_codigo"] as $key ) { // bebedeira
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
+                        $parametro = $key["token"];
+                    }
+                }
+                // testa validação de PARÂMETRO com operadores
+                if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
+                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                }
+                
+                // 2° parametro
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+6)) ) {
+                        $parametro = $key["token"];
+                    }
+                }
+                // testa validação de PARÂMETRO com operadores
+                if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
+                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                }
+
+                // 3° parametro
+                // retorna o valor do elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( $key["n_linha"] == $token["n_linha"] ) {
+                        $ultima_palavra = $key["n_palavra"];
+                    }
+                }
+                // retorna o penultimo elemento
+                $som_teste = 0;
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-3)) ) {
+                        $penultima_palavra = $key["token"];
+                        if ( $penultima_palavra === "pinga" ) {
+                            $som_teste = 1;
+                            foreach ( $texto["inf_codigo"] as $key ) {
+                                if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-2)) ) {
+                                    $penultima_palavra = $key["token"];
+                                    if ( preg_match("/[0-9a-zA-Z_]$/" , $penultima_palavra) ) {
+                                        $som_teste = 2;
+                                        foreach ( $texto["inf_codigo"] as $key ) {
+                                            if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-1)) ) {
+                                               $penultima_palavra = $key["token"];
+                                                if ( ($penultima_palavra === "++") || ($penultima_palavra === "--") ) {
+                                                    $som_teste = 3;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if ( $som_teste < 3 ) { // verifica se não chegou até o fim da verificação
+                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                }
+            }
+            
+            // prepara PARÂMETRO | desceUma PARÂMETRO
+            elseif ( ($token["token"] === "prepara") || ($token["token"] === "desceUma") )
+            {
+                // primeiro elemento
+                $primeira_palavra = $token["n_palavra"];
+
+                // retorna o segundo elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
+                        $parametro = $key["token"];
+                        if ( !preg_match("/[0-9a-zA-Z_]$/" , $parametro) ) { // valida prepara PARÂMETRO
+                            echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                        }
+                    }
+                }
+            }
+
+            // return deuPorHoje PARÂMETRO (pode ter ou não)
 
             echo "<br>----<br>";
         }
+
+
+        // VERIFICAR ; | { | } EM CADA LINHA
+
 
         if ( $cont_bloco > 0 ) {
             echo "ABERTURA|FECHAMENTO DE BLOCO INCORRETO!";
@@ -397,6 +548,138 @@ class Tradutor
 
         // }
 
+    }
+
+    private function parametro_op( $parametro_1, $texto, $n_linha, $primeira_palavra ) {
+        $operador = array( "+", "-", "*", "/", "=", "++", "--", "==", "<", ">", "<=", ">=", "!", "!=", "<>", "&&", "||" );
+        // formato pinga VAR OP pinga VAR
+        // formato pinga VAR OP string
+        // formato pinga VAR OP numero
+        if ( $parametro_1 === "pinga" ) { // valida PINGA
+            foreach ( $texto as $key ) {
+                if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+2)) ) {
+                    $parametro_2 = $key["token"];
+                    $parametro_2_np = $key["n_palavra"];
+                }
+            }
+            if ( $this->p_func_var( $parametro_2, " ", $parametro_2_np, $n_linha )) { // valida pinga VARIAVEL
+                // se for variavel testa se o próximo é um operador
+                foreach ( $texto as $key ) {
+                    if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+3)) ) {
+                        $parametro_3 = $key["token"];
+                    }
+                }
+                $op_ok = 0;
+                foreach ( $operador as $op ) {
+                    if ( $parametro_3 === $op ) {  // valida pinga variavel OPERADOR
+                        $op_ok = 1;
+                    }
+                }
+                // se validar operador pega o próximo elemento
+                if ( $op_ok === 1 ) {
+                    foreach ( $texto as $key ) {
+                        if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+4)) ) {
+                            $parametro_4 = $key["token"];
+                        }
+                    }
+                    // se for operador testa se o próximo é uma variavel
+                    if ( $parametro_4 === "pinga" ) { // valida pinga variavel operador PINGA
+                        foreach ( $texto as $key ) {
+                            if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+5)) ) {
+                                $parametro_5 = $key["token"];
+                                $parametro_5_np = $key["n_palavra"];
+                            }
+                        }
+                        if ( $this->p_func_var( $parametro_5, " ", $parametro_5_np, $n_linha )) { // valida pinga variavel operador pinga VARIAVEL
+                            // echo "<br>SUCESSO no formato pinga VAR OP pinga VAR";
+                            return true;
+
+                        }
+                    }
+                    // elseif ( $parametro_4 === STRING ) { // valida pinga variavel operador STRING
+                    //     # code...
+                    // }
+                    elseif ( preg_match("/[0-9]$/" , $parametro_4) ) { // valida pinga variavel operador NUMERO
+                        // verificar se valida numeros float
+                        // echo "<br>SUCESSO no formato pinga VAR OP numero";
+                        return true;
+
+                    }
+                }
+            }
+        }
+        // falta fazer para STRING
+
+        // formato numero OP pinga VAR
+        // formato numero OP string
+        // formato numero OP numero
+        elseif ( preg_match("/[0-9]$/" , $parametro_1) ) { // valida NUMERO
+            foreach ( $texto as $key ) {
+                if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+2)) ) {
+                    $parametro_2 = $key["token"];
+                }
+            }
+            $op_ok = 0;
+            foreach ( $operador as $op ) {
+                if ( $parametro_2 === $op ) {  // valida numero OPERADOR
+                    $op_ok = 1;
+                }
+            }
+            // se validar operador pega o próximo elemento
+            if ( $op_ok === 1 ) {
+                foreach ( $texto as $key ) {
+                    if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+3)) ) {
+                        $parametro_3 = $key["token"];
+                    }
+                }
+                // se for operador testa se o próximo é uma variavel
+                if ( $parametro_3 === "pinga" ) { // valida numero operador PINGA
+                    foreach ( $texto as $key ) {
+                        if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+4)) ) {
+                            $parametro_4 = $key["token"];
+                            $parametro_4_np = $key["n_palavra"];
+                        }
+                    }
+                    if ( $this->p_func_var( $parametro_4, " ", $parametro_4_np, $n_linha )) { // valida numero operador pinga VARIAVEL
+                        // echo "<br>SUCESSO no formato numero OP pinga VAR";
+                        return true;
+
+                    }
+                }
+            }
+        }
+        
+        // formato ! pinga VAR
+        // formato ! string
+        // formato ! numero
+        elseif ( $parametro_1 === "!" ) { // valida !
+            foreach ( $texto as $key ) {
+                if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+2)) ) {
+                    $parametro_2 = $key["token"];
+                }
+            }
+            if ( $parametro_2 === "pinga" ) { // valida PINGA
+                foreach ( $texto as $key ) {
+                    if ( ($key["n_linha"] == $n_linha) && ($key["n_palavra"] == ($primeira_palavra+3)) ) {
+                        $parametro_3 = $key["token"];
+                        $parametro_3_np = $key["n_palavra"];
+                    }
+                }
+                if ( $this->p_func_var( $parametro_3, " ", $parametro_3_np, $n_linha )) { // valida pinga VARIAVEL
+                    // echo "<br>SUCESSO no formato ! pinga VAR";
+                    return true;
+
+                }
+            }
+            // falta fazer para validar ! STRING
+            elseif ( preg_match("/[0-9]$/" , $parametro_2) ) { // valida NUMERO
+                // echo "<br>SUCESSO no formato ! NUMERO";
+                return true;
+
+            }
+        }
+
+        return false;
     }
 
     public function traducao( $texto )
