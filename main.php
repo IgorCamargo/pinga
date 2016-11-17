@@ -382,6 +382,8 @@ class Tradutor
                 if ( !$this->p_func_var($pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"]) )
                 {
                     echo "<br>*parâmetro inválido na linha ".$pos_token["n_linha"]."*";
+
+                    return false;
                 }
             }
 
@@ -413,6 +415,8 @@ class Tradutor
                 // testa validação de PARÂMETRO com operadores
                 if ( (!$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra)) || ( $penultima_palavra != "boaIdeia?" ) ) {
                     echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+
+                    return false;
                 }
             }
 
@@ -432,6 +436,8 @@ class Tradutor
                 // testa validação de PARÂMETRO com operadores
                 if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
                     echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+
+                    return false;
                 }
             }
 
@@ -453,6 +459,8 @@ class Tradutor
                 // testa validação de PARÂMETRO com operadores
                 if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
                     echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+
+                    return false;
                 }
                 
                 // 2° parametro
@@ -464,6 +472,8 @@ class Tradutor
                 // testa validação de PARÂMETRO com operadores
                 if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
                     echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+
+                    return false;
                 }
 
                 // 3° parametro
@@ -501,6 +511,8 @@ class Tradutor
                 }
                 if ( $som_teste < 3 ) { // verifica se não chegou até o fim da verificação
                     echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+
+                    return false;
                 }
             }
             
@@ -516,6 +528,8 @@ class Tradutor
                         $parametro = $key["token"];
                         if ( !preg_match("/[0-9a-zA-Z_]$/" , $parametro) ) { // valida prepara PARÂMETRO
                             echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+
+                            return false;
                         }
                     }
                 }
@@ -527,30 +541,96 @@ class Tradutor
         }
 
 
-        // VERIFICAR ; | { | } EM CADA LINHA
+        // VERIFICAR ; | { | } EM CADA LINHA        NÃO PODE TER ;{ OU ;} OU ;; OU }} OU {{ - TEM QUE TER UM ESPAÇO{
+        $fim_linha = $this->an_fim_linha( $texto );
 
+        if ( $fim_linha["valida"] === 1 )
+        {
+            echo "<br>*parâmetro inválido na linha ".$fim_linha["linha"]."*";
 
-        if ( $cont_bloco > 0 ) {
+            return false;
+        }
+
+        // verifica se há blocos abertos e não fechados
+        if ( ($cont_bloco > 0) || ($cont_bloco < 0) ) {
             echo "ABERTURA|FECHAMENTO DE BLOCO INCORRETO!";
         }
 
-        // foreach ( $texto["inf_codigo"] as $linha ) {
-        //     // print_r( $linha );
-        //     echo $linha["token"];
-        //     echo "<br>";
-        //     // $linha["token"]."<br>";
-
-        //     // print_r($linha);
-
-        //     if ( $linha["token"] == "soltaCana" ) {
-        //         # code...
-        //     }
-
-        // }
-
+        return $texto;
     }
 
-    private function parametro_op( $parametro_1, $texto, $n_linha, $primeira_palavra ) {
+    private function an_fim_linha( $texto )
+    /* verifica o fim de cada linha, se é válido. Se inválido, retorna a linha da ocorrência */
+    {
+        for ($i=0; $i < count( $texto["inf_codigo"] ); $i++) { 
+
+            $token = $texto["inf_codigo"][$i];
+
+            // {
+            if ( $token["token"] === "{" )
+            {
+                // primeiro elemento
+                $primeira_palavra = $token["n_palavra"];
+
+                // retorna o valor do elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( $key["n_linha"] == $token["n_linha"] ) {
+                        $n_palavra = $key["n_palavra"];
+                    }
+                }
+                // retorna o penultimo elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($n_palavra-1)) ) {
+                        $penultima_palavra = $key["token"];
+                        $key["n_linha"];
+
+                        if ( ($penultima_palavra === ";") || ($penultima_palavra === "{") || ($penultima_palavra === "}") ) {
+                            $linha = array(
+                                "valida"    => 1,
+                                "linha"     => $key["n_linha"]
+                            );
+                            
+                            return $linha;
+                        }
+                    }
+                }
+            }
+
+            // }
+            elseif ( $token["token"] === "}" )
+            {
+                // primeiro elemento
+                $primeira_palavra = $token["n_palavra"];
+
+                // retorna o valor do elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( $key["n_linha"] == $token["n_linha"] ) {
+                        $n_palavra = $key["n_palavra"];
+
+                        if ( $n_palavra > 1 ) {
+                            $linha = array(
+                                "valida"    => 1,
+                                "linha"     => $key["n_linha"]
+                            );
+                            
+                            return $linha;
+                        }
+                    }
+                }
+            }
+        }
+        
+        $linha = array(
+            "valida"    => 0,
+            "linha"     => 0
+        );
+
+        return $linha;
+    }
+
+    private function parametro_op( $parametro_1, $texto, $n_linha, $primeira_palavra )
+    /* verifica se o parametro está no formato correto */
+    {
         $operador = array( "+", "-", "*", "/", "=", "++", "--", "==", "<", ">", "<=", ">=", "!", "!=", "<>", "&&", "||" );
         // formato pinga VAR OP pinga VAR
         // formato pinga VAR OP string
