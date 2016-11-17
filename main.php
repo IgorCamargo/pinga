@@ -562,9 +562,77 @@ class Tradutor
     private function an_fim_linha( $texto )
     /* verifica o fim de cada linha, se é válido. Se inválido, retorna a linha da ocorrência */
     {
+
+        // verifica se o fim de linha conte ; | { | }
+        // verifica onde há as ocorrências
+        $teste_linha = 1;
+        foreach ( $texto["inf_codigo"] as $key ) {
+            if ( $key["n_linha"] === $teste_linha ) {
+                $num_palavra[ $teste_linha ] = $key["n_palavra"];
+            } else { $teste_linha++; }
+        }
+        // array_shift($num_palavra);
+        print_r( $num_palavra );
+        echo "<br>";
+        // echo count($num_palavra);
+        // os indices são as linhas
+        $ind_palavra = array_keys( $num_palavra );
+        // elimina a linha 1, pois é vamosBeber, que não exige;
+        array_shift( $ind_palavra );
+        print_r( $ind_palavra );
+        echo "<br>";
+        array_shift( $num_palavra );
+        print_r( $num_palavra );
+        echo "<br>";
+
+        for ($i=0; $i < count( $num_palavra ); $i++) { 
+            echo $ind_palavra[$i]." - "; // linha da ocorrencia
+            echo $num_palavra[$i]." == "; // posição da ocorrencia
+
+            foreach ( $texto["inf_codigo"] as $key ) {
+                if ( ($key["n_linha"] === $ind_palavra[$i]) && ($key["n_palavra"] === $num_palavra[$i]) ) {
+                    echo $ult_elemento = $key["token"];
+                }
+            }
+
+            echo "<br>";
+
+        }
+
+        // valida ; { }
         for ($i=0; $i < count( $texto["inf_codigo"] ); $i++) { 
 
             $token = $texto["inf_codigo"][$i];
+            
+            // ;
+            if ( $token["token"] === ";" )
+            {
+                // primeiro elemento
+                $primeira_palavra = $token["n_palavra"];
+
+                // retorna o valor do elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( $key["n_linha"] == $token["n_linha"] ) {
+                        $n_palavra = $key["n_palavra"];
+                    }
+                }
+                // retorna o penultimo elemento
+                foreach ( $texto["inf_codigo"] as $key ) {
+                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($n_palavra-1)) ) {
+                        $penultima_palavra = $key["token"];
+                        $key["n_linha"];
+
+                        if ( ($penultima_palavra === ";") || ($penultima_palavra === "{") || ($penultima_palavra === "}") ) {
+                            $linha = array(
+                                "valida"    => 1,
+                                "linha"     => $key["n_linha"]
+                            );
+                            
+                            return $linha;
+                        }
+                    }
+                }
+            }
 
             // {
             if ( $token["token"] === "{" )
