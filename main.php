@@ -13,10 +13,6 @@
 
 <?php
 
-/*
-http://www.regexr.com/
-*/
-
 $codigo_fonte = $_POST["codigo_fonte"];
 
 class Tradutor
@@ -336,170 +332,157 @@ class Tradutor
     public function analise_sintatica( $texto )
     /* Identifica erros digitados no código, erros de escritas. */
     {
-        echo "<br> total de linhas = ".$texto["total_linhas"]."<br>",
-        "Código = <br>";
+        echo "<br>Total de linhas analisadas no código = ".$texto["total_linhas"]."<br>";
+        // "Código = <br>";
+        // "<br> ============================================================ <br>";
         // print_r($texto["inf_codigo"]);
 
-        // identificar os blocos de código
-        echo "<br> ==================== <br>";
-        
-        // sempre tem que ter esta abertura de código
-        // if ( $texto["inf_codigo"][0][0]["token"] == "vamosBeber" )
-        // {
-        //     echo "abertura correta";
-        // }
-        // else {
-        //     echo "ERRO - Esperado palavra reservada 'vamosBeber'<br>",
-        //     "Linha ".$texto["inf_codigo"][0][0]["n_linha"]." => ",
-        //     $texto["inf_codigo"][0][0]["token"];
-        // }
-
         $cont_bloco = 0;
+        // numero da linha do segundo elemento, se for 1, significa que tem vamosBeber 'alguma coisa', o que não pode
+        $prox_elemento = $texto["inf_codigo"][1]["n_linha"];
+        // sempre tem que ter esta abertura de código na primeira linha
+        if ( ($texto["inf_codigo"][0]["token"] === "vamosBeber") && ($prox_elemento != 1) )
+        {
+            for ($i=0; $i < count( $texto["inf_codigo"] ); $i++) { 
 
-        for ($i=0; $i < count( $texto["inf_codigo"] ); $i++) { 
-            // print_r( $texto["inf_codigo"][$i]["token"] );
+                $token = $texto["inf_codigo"][$i];
+                $token["token"];
 
-            // print_r($texto["inf_codigo"][$i]);
+                // se for bloco, adiciona no contador
+                if ( $token["token"] == "{" ) {
+                    $cont_bloco++;
+                } elseif ( $token["token"] == "}" ) {
+                    $cont_bloco--;
+                }
 
-            $token = $texto["inf_codigo"][$i];
-            echo $token["token"];
-
-            // var_dump($token);
-
-            // se for bloco, adiciona no contador
-            if ( $token["token"] == "{" ) {
-                $cont_bloco++;
-            } elseif ( $token["token"] == "}" ) {
-                $cont_bloco--;
-            }
-
-            // teste semantico
-            // soltaCana PARÂMETRO | pinga PARÂMETRO
-            if ( ($token["token"] === "soltaCana") || ($token["token"] === "pinga") )
-            {
-                $pos_token = $texto["inf_codigo"][$i+1];
-                // if ( (!$this->p_string( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) || (!$this->p_func_var( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) )
-                if ( !$this->p_func_var($pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"]) )
+                // teste semantico
+                // soltaCana PARÂMETRO | pinga PARÂMETRO
+                if ( ($token["token"] === "soltaCana") || ($token["token"] === "pinga") )
                 {
-                    echo "<br>*parâmetro inválido na linha ".$pos_token["n_linha"]."*";
+                    $pos_token = $texto["inf_codigo"][$i+1];
+                    // if ( (!$this->p_string( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) || (!$this->p_func_var( $pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"] )) )
+                    if ( !$this->p_func_var($pos_token["token"], " ", $pos_token["n_palavra"], $pos_token["n_linha"]) )
+                    {
+                        echo "<br>*parâmetro inválido na linha ".$pos_token["n_linha"]."*";
 
-                    return false;
-                }
-            }
-
-            // 51 PARÂMETRO boaIdeia?
-            elseif ( $token["token"] === "51" )
-            {
-                // primeiro elemento
-                $primeira_palavra = $token["n_palavra"];
-
-                // retorna o valor do elemento
-                foreach ( $texto["inf_codigo"] as $key ) {
-                    if ( $key["n_linha"] == $token["n_linha"] ) {
-                        $ultima_palavra = $key["n_palavra"];
-                    }
-                }
-                // retorna o penultimo elemento (boaIdeia?)
-                foreach ( $texto["inf_codigo"] as $key ) {
-                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-1)) ) {
-                       $penultima_palavra = $key["token"];
-                    }
-                }
-                // retorna o segundo elemento
-                foreach ( $texto["inf_codigo"] as $key ) {
-                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
-                        $parametro = $key["token"];
+                        return false;
                     }
                 }
 
-                // testa validação de PARÂMETRO com operadores
-                if ( (!$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra)) || ( $penultima_palavra != "boaIdeia?" ) ) {
-                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                // 51 PARÂMETRO boaIdeia?
+                elseif ( $token["token"] === "51" )
+                {
+                    // primeiro elemento
+                    $primeira_palavra = $token["n_palavra"];
 
-                    return false;
-                }
-            }
+                    // retorna o valor do elemento
+                    foreach ( $texto["inf_codigo"] as $key ) {
+                        if ( $key["n_linha"] == $token["n_linha"] ) {
+                            $ultima_palavra = $key["n_palavra"];
+                        }
+                    }
+                    // retorna o penultimo elemento (boaIdeia?)
+                    foreach ( $texto["inf_codigo"] as $key ) {
+                        if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-1)) ) {
+                           $penultima_palavra = $key["token"];
+                        }
+                    }
+                    // retorna o segundo elemento
+                    foreach ( $texto["inf_codigo"] as $key ) {
+                        if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
+                            $parametro = $key["token"];
+                        }
+                    }
 
-            // soMaisUmaSe PARÂMETRO | transformandoDragaoEmPrincesaSe PARÂMETRO
-            elseif ( ($token["token"] === "soMaisUmaSe") || ($token["token"] === "transformandoDragaoEmPrincesaSe") )
-            {
-                // primeiro elemento
-                $primeira_palavra = $token["n_palavra"];
+                    // testa validação de PARÂMETRO com operadores
+                    if ( (!$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra)) || ( $penultima_palavra != "boaIdeia?" ) ) {
+                        echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
 
-                // retorna o segundo elemento
-                foreach ( $texto["inf_codigo"] as $key ) {
-                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
-                        $parametro = $key["token"];
+                        return false;
                     }
                 }
 
-                // testa validação de PARÂMETRO com operadores
-                if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
-                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                // soMaisUmaSe PARÂMETRO | transformandoDragaoEmPrincesaSe PARÂMETRO
+                elseif ( ($token["token"] === "soMaisUmaSe") || ($token["token"] === "transformandoDragaoEmPrincesaSe") )
+                {
+                    // primeiro elemento
+                    $primeira_palavra = $token["n_palavra"];
 
-                    return false;
-                }
-            }
+                    // retorna o segundo elemento
+                    foreach ( $texto["inf_codigo"] as $key ) {
+                        if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
+                            $parametro = $key["token"];
+                        }
+                    }
 
-            // tropica / transformandoDragaoEmPrincesaSe PARÂMETRO
+                    // testa validação de PARÂMETRO com operadores
+                    if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
+                        echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
 
-            // bebedeira PARÂMETRO , PARÂMETRO , PARÂMETRO
-            elseif ( $token["token"] === "bebedeira" )
-            {
-                // primeiro elemento
-                $primeira_palavra = $token["n_palavra"];
-
-                // retorna o segundo elemento
-                // 1° parametro
-                foreach ( $texto["inf_codigo"] as $key ) { // bebedeira
-                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
-                        $parametro = $key["token"];
+                        return false;
                     }
                 }
-                // testa validação de PARÂMETRO com operadores
-                if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
-                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
 
-                    return false;
-                }
-                
-                // 2° parametro
-                foreach ( $texto["inf_codigo"] as $key ) {
-                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+6)) ) {
-                        $parametro = $key["token"];
+                // tropica / transformandoDragaoEmPrincesaSe PARÂMETRO
+
+                // bebedeira PARÂMETRO , PARÂMETRO , PARÂMETRO
+                elseif ( $token["token"] === "bebedeira" )
+                {
+                    // primeiro elemento
+                    $primeira_palavra = $token["n_palavra"];
+
+                    // retorna o segundo elemento
+                    // 1° parametro
+                    foreach ( $texto["inf_codigo"] as $key ) { // bebedeira
+                        if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
+                            $parametro = $key["token"];
+                        }
                     }
-                }
-                // testa validação de PARÂMETRO com operadores
-                if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
-                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                    // testa validação de PARÂMETRO com operadores
+                    if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
+                        echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
 
-                    return false;
-                }
-
-                // 3° parametro
-                // retorna o valor do elemento
-                foreach ( $texto["inf_codigo"] as $key ) {
-                    if ( $key["n_linha"] == $token["n_linha"] ) {
-                        $ultima_palavra = $key["n_palavra"];
+                        return false;
                     }
-                }
-                // retorna o penultimo elemento
-                $som_teste = 0;
-                foreach ( $texto["inf_codigo"] as $key ) {
-                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-3)) ) {
-                        $penultima_palavra = $key["token"];
-                        if ( $penultima_palavra === "pinga" ) {
-                            $som_teste = 1;
-                            foreach ( $texto["inf_codigo"] as $key ) {
-                                if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-2)) ) {
-                                    $penultima_palavra = $key["token"];
-                                    if ( preg_match("/[0-9a-zA-Z_]$/" , $penultima_palavra) ) {
-                                        $som_teste = 2;
-                                        foreach ( $texto["inf_codigo"] as $key ) {
-                                            if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-1)) ) {
-                                               $penultima_palavra = $key["token"];
-                                                if ( ($penultima_palavra === "++") || ($penultima_palavra === "--") ) {
-                                                    $som_teste = 3;
+                    
+                    // 2° parametro
+                    foreach ( $texto["inf_codigo"] as $key ) {
+                        if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+6)) ) {
+                            $parametro = $key["token"];
+                        }
+                    }
+                    // testa validação de PARÂMETRO com operadores
+                    if ( !$this->parametro_op($parametro, $texto["inf_codigo"], $token["n_linha"], $primeira_palavra) ) {
+                        echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+
+                        return false;
+                    }
+
+                    // 3° parametro
+                    // retorna o valor do elemento
+                    foreach ( $texto["inf_codigo"] as $key ) {
+                        if ( $key["n_linha"] == $token["n_linha"] ) {
+                            $ultima_palavra = $key["n_palavra"];
+                        }
+                    }
+                    // retorna o penultimo elemento
+                    $som_teste = 0;
+                    foreach ( $texto["inf_codigo"] as $key ) {
+                        if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-3)) ) {
+                            $penultima_palavra = $key["token"];
+                            if ( $penultima_palavra === "pinga" ) {
+                                $som_teste = 1;
+                                foreach ( $texto["inf_codigo"] as $key ) {
+                                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-2)) ) {
+                                        $penultima_palavra = $key["token"];
+                                        if ( preg_match("/[0-9a-zA-Z_]$/" , $penultima_palavra) ) {
+                                            $som_teste = 2;
+                                            foreach ( $texto["inf_codigo"] as $key ) {
+                                                if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($ultima_palavra-1)) ) {
+                                                   $penultima_palavra = $key["token"];
+                                                    if ( ($penultima_palavra === "++") || ($penultima_palavra === "--") ) {
+                                                        $som_teste = 3;
+                                                    }
                                                 }
                                             }
                                         }
@@ -508,41 +491,44 @@ class Tradutor
                             }
                         }
                     }
+                    if ( $som_teste < 3 ) { // verifica se não chegou até o fim da verificação
+                        echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+
+                        return false;
+                    }
                 }
-                if ( $som_teste < 3 ) { // verifica se não chegou até o fim da verificação
-                    echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
+                
+                // prepara PARÂMETRO | desceUma PARÂMETRO
+                elseif ( ($token["token"] === "prepara") || ($token["token"] === "desceUma") )
+                {
+                    // primeiro elemento
+                    $primeira_palavra = $token["n_palavra"];
 
-                    return false;
-                }
-            }
-            
-            // prepara PARÂMETRO | desceUma PARÂMETRO
-            elseif ( ($token["token"] === "prepara") || ($token["token"] === "desceUma") )
-            {
-                // primeiro elemento
-                $primeira_palavra = $token["n_palavra"];
+                    // retorna o segundo elemento
+                    foreach ( $texto["inf_codigo"] as $key ) {
+                        if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
+                            $parametro = $key["token"];
+                            if ( !preg_match("/[0-9a-zA-Z_]$/" , $parametro) ) { // valida prepara PARÂMETRO
+                                echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
 
-                // retorna o segundo elemento
-                foreach ( $texto["inf_codigo"] as $key ) {
-                    if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($primeira_palavra+1)) ) {
-                        $parametro = $key["token"];
-                        if ( !preg_match("/[0-9a-zA-Z_]$/" , $parametro) ) { // valida prepara PARÂMETRO
-                            echo "<br>*parâmetro inválido na linha ".$token["n_linha"]."*";
-
-                            return false;
+                                return false;
+                            }
                         }
                     }
                 }
+
+                // return deuPorHoje PARÂMETRO (pode ter ou não)
+                // echo "<br>----<br>";
             }
+        } else {
+            echo "<br>*parâmetro inválido na linha ".$texto["inf_codigo"][0]["n_linha"]."*";
 
-            // return deuPorHoje PARÂMETRO (pode ter ou não)
-
-            echo "<br>----<br>";
+            return false;
         }
-
 
         // VERIFICAR ; | { | } EM CADA LINHA        NÃO PODE TER ;{ OU ;} OU ;; OU }} OU {{ - TEM QUE TER UM ESPAÇO{
         $fim_linha = $this->an_fim_linha( $texto );
+        // var_dump($fim_linha);
 
         if ( $fim_linha["valida"] === 1 )
         {
@@ -554,6 +540,8 @@ class Tradutor
         // verifica se há blocos abertos e não fechados
         if ( ($cont_bloco > 0) || ($cont_bloco < 0) ) {
             echo "ABERTURA|FECHAMENTO DE BLOCO INCORRETO!";
+
+            return false;
         }
 
         return $texto;
@@ -562,8 +550,45 @@ class Tradutor
     private function an_fim_linha( $texto )
     /* verifica o fim de cada linha, se é válido. Se inválido, retorna a linha da ocorrência */
     {
+        // verifica se o fim de linha ; | { | }
+        // retorna o valor do ultimo elemento
+        for ($x=0; $x < $texto["total_linhas"]; $x++) { 
+            foreach ( $texto["inf_codigo"] as $key ) {
+                if ( $key["n_linha"] == $x ) {
+                    $ultima_palavra[$x] = $key["n_palavra"];
+                }
+            }
+        }
+        // if ( isset($ultima_palavra) ) {
+        //     echo "<br>";
+        //     print_r($ultima_palavra);
+        //     echo "<br>";
+        // }
+        // x=2 pois pula a primeira linha, que deve ser vamosBeber
+        for ($x=2; $x < $texto["total_linhas"]; $x++) { 
+            foreach ( $texto["inf_codigo"] as $key ) {
+                if ( ($key["n_linha"] === $x) && ($key["n_palavra"] === $ultima_palavra[$x] ) ) {
+                    $u_palavra = $key["token"];
+                    // echo "FIM ".$u_palavra."<br>";
+                    if ( $u_palavra != "{" ) {
+                        if ( $u_palavra != "}" ) {
+                            if ( $u_palavra != ";" ) {
+                                if ( trim($u_palavra) != false ) {
+                                    // erro
+                                    $linha = array(
+                                        "valida"    => 1,
+                                        "linha"     => $key["n_linha"]
+                                    );
+                                        
+                                    return $linha;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-        // verifica se o fim de linha conte ; | { | }
         // verifica onde há as ocorrências
         $teste_linha = 1;
         foreach ( $texto["inf_codigo"] as $key ) {
@@ -571,32 +596,36 @@ class Tradutor
                 $num_palavra[ $teste_linha ] = $key["n_palavra"];
             } else { $teste_linha++; }
         }
-        // array_shift($num_palavra);
-        print_r( $num_palavra );
-        echo "<br>";
-        // echo count($num_palavra);
         // os indices são as linhas
         $ind_palavra = array_keys( $num_palavra );
-        // elimina a linha 1, pois é vamosBeber, que não exige;
-        array_shift( $ind_palavra );
-        print_r( $ind_palavra );
-        echo "<br>";
-        array_shift( $num_palavra );
-        print_r( $num_palavra );
-        echo "<br>";
+        // elimina a linha 1, pois deve ser vamosBeber, que não exige;
+        
+        $cont_num = 0;
+        foreach ( $num_palavra as $n ) {
+            $_num_palavra[ $cont_num ] = $n;
+            $cont_num++;
+        }
+       
+        // verifica o ultimo de cada linha
+        for ($i=1; $i < count( $_num_palavra ); $i++) { 
+            $ind_palavra[$i]; // linha da ocorrencia
+            $_num_palavra[$i]; // posição da ocorrencia
 
-        for ($i=0; $i < count( $num_palavra ); $i++) { 
-            echo $ind_palavra[$i]." - "; // linha da ocorrencia
-            echo $num_palavra[$i]." == "; // posição da ocorrencia
-
+            // retorna o penultimo elemento, aqui ocorre a validação para ;; | ;{ | ;} | etc
             foreach ( $texto["inf_codigo"] as $key ) {
-                if ( ($key["n_linha"] === $ind_palavra[$i]) && ($key["n_palavra"] === $num_palavra[$i]) ) {
-                    echo $ult_elemento = $key["token"];
+                if ( ($key["n_linha"] == $ind_palavra[$i]) && ($key["n_palavra"] == ($_num_palavra[$i]-1)) ) {
+                    $penultima_palavra = $key["token"];
+                    if ( ($penultima_palavra === ";") || ($penultima_palavra === "{") || ($penultima_palavra === "}") ) {
+                        // erro
+                        $linha = array(
+                            "valida"    => 1,
+                            "linha"     => $key["n_linha"]
+                        );
+                            
+                        return $linha;
+                    }
                 }
             }
-
-            echo "<br>";
-
         }
 
         // valida ; { }
@@ -621,8 +650,8 @@ class Tradutor
                     if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($n_palavra-1)) ) {
                         $penultima_palavra = $key["token"];
                         $key["n_linha"];
-
                         if ( ($penultima_palavra === ";") || ($penultima_palavra === "{") || ($penultima_palavra === "}") ) {
+                            // erro
                             $linha = array(
                                 "valida"    => 1,
                                 "linha"     => $key["n_linha"]
@@ -651,8 +680,8 @@ class Tradutor
                     if ( ($key["n_linha"] == $token["n_linha"]) && ($key["n_palavra"] == ($n_palavra-1)) ) {
                         $penultima_palavra = $key["token"];
                         $key["n_linha"];
-
                         if ( ($penultima_palavra === ";") || ($penultima_palavra === "{") || ($penultima_palavra === "}") ) {
+                            // erro
                             $linha = array(
                                 "valida"    => 1,
                                 "linha"     => $key["n_linha"]
@@ -674,8 +703,8 @@ class Tradutor
                 foreach ( $texto["inf_codigo"] as $key ) {
                     if ( $key["n_linha"] == $token["n_linha"] ) {
                         $n_palavra = $key["n_palavra"];
-
                         if ( $n_palavra > 1 ) {
+                            // erro
                             $linha = array(
                                 "valida"    => 1,
                                 "linha"     => $key["n_linha"]
@@ -688,6 +717,7 @@ class Tradutor
             }
         }
         
+        // sucesso
         $linha = array(
             "valida"    => 0,
             "linha"     => 0
@@ -816,14 +846,12 @@ class Tradutor
                 if ( $this->p_func_var( $parametro_3, " ", $parametro_3_np, $n_linha )) { // valida pinga VARIAVEL
                     // echo "<br>SUCESSO no formato ! pinga VAR";
                     return true;
-
                 }
             }
             // falta fazer para validar ! STRING
             elseif ( preg_match("/[0-9]$/" , $parametro_2) ) { // valida NUMERO
                 // echo "<br>SUCESSO no formato ! NUMERO";
                 return true;
-
             }
         }
 
@@ -831,13 +859,184 @@ class Tradutor
     }
 
     public function traducao( $texto )
+    /* realiza a tradução e também a validação para linguagem alvo */
     {
-        // exemplo:     str_replace('vamos beber', '<?php');
+        try {
+            $codigo_traduzido = null;
+            $linha_impressa = 1;
+
+            $q_letras = count($texto["inf_codigo"]); // quantidades de elementos
+            $q_linhas = $texto["total_linhas"]; // quantidades de linhas
+
+            // imprime o código compilado para traduzir
+            foreach ( $texto["inf_codigo"] as $key ) {
+                if ( $key["n_linha"] > $linha_impressa ) {
+                    echo "<br>";
+                    $linha_impressa++;
+                    // $codigo_traduzido .= "<br>"; // para definir quebra de linha
+                }
+                echo $key["token"]. " ";
+                $palavra = $key["token"];
+            }
+
+            // realiza a tradução por palavra
+            for ($i=0; $i < $q_letras; $i++) {
+                $palavra = $texto["inf_codigo"][$i]["token"];
+                $palavra = $this->substitui( $palavra );
+                $palavra_traduzida[$i] = $palavra;
+            }
+
+            for ($i=0; $i < $q_letras; $i++) {
+                // realiza a validação
+                if ( ($i > 1) && ($i < $q_letras) ) {
+
+                    // valida $VARIAVEL
+                    $palavra_traduzida_anterior = $palavra_traduzida[($i-1)];
+                    if ( $palavra_traduzida_anterior === "$") {
+                        $palavra_traduzida[$i] = $palavra_traduzida_anterior.$palavra_traduzida[$i];
+                        $palavra_traduzida[($i-1)] = "";
+                    }
+
+                    // valida while( <= 10 ){
+                    if ( $palavra_traduzida_anterior === "while(") {
+                        $pos_while = $i;
+                        $fim_while = $q_letras;
+                        for ($x = $pos_while; $x < $fim_while; $x++) { 
+                            if ( $palavra_traduzida[$x] === "{" ) {
+                                $palavra_traduzida[$x] = "){";
+
+                                $fim_while = $pos_while;
+                            }
+                        }
+                    }
+
+                    // valida for( $i=0 ; $i < ; $i ++ ){
+                    if ( $palavra_traduzida_anterior === "for(") {
+                        $pos_for = $i;
+                        $fim_for = $q_letras;
+                        $q_virgula = 0;
+                        for ($x = $pos_for; $x < $fim_for; $x++) { 
+                            if ( $palavra_traduzida[$x] === "{" ) {
+                                $palavra_traduzida[$x] = "){";
+                                $fim_for = $pos_for;
+                            }
+                            elseif ( $palavra_traduzida[$x] === "," ) {
+                                if ( $q_virgula < 2 ) {
+                                    $palavra_traduzida[$x] = ";";
+                                    $q_virgula++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // imprime código traduzido
+            echo "<br>";
+            echo "<br> ============================================================ <br>";
+            // se existe um arquivo criado, exclui
+            unlink( "traduzido.php" );
+            for ($i=0; $i < $q_letras; $i++) {
+                echo "<input type='text' value='".$palavra_traduzida[$i]."' />";
+
+                $fp = fopen( "traduzido.php", "a" );
+                $escreve = fwrite($fp, $palavra_traduzida[$i]." ");
+                fclose($fp);
+            }
+
+            // ajustar
+            // echo "<textarea name='conteudo' rows='25' cols='100'>".$fp."</textarea>";
+
+            return true;
+        } catch (Exception $e) {
+            echo 'Ocorreu um erro ao realizar a tradução do código: ',  $e->getMessage(), "\n";
+        }
+    }
+
+    private function substitui( $palavra )
+    // realiza a substituição de acordo com a linguagem alvo: PHP
+    {
+        trim($palavra);
+
+        if ($palavra === "vamosBeber") {
+            $palavra = "<?php";
+        }
+
+        if ($palavra === "acabouBebida") {
+            $palavra = "?>";
+        }
+        if ($palavra === "soltaCana") {
+            $palavra = "echo";
+        }
+        if ($palavra === "51") {
+            $palavra = "if(";
+        }
+        if ($palavra === "boaIdeia?") {
+            $palavra = ")";
+        }
+        if ($palavra === "bavaria!") {
+            $palavra = "else";
+        }
+        if ($palavra === "pinga") {
+            $palavra = "$";
+        }
+        if ($palavra === "transformandoDragaoEmPrincesaSe") {
+            $palavra = "while(";
+        }
+        if ($palavra === "tropica") {
+            $palavra = "do";
+        }
+        if ($palavra === "bebedeira") {
+            $palavra = "for(";
+            // ******* ajustar ',' e FECHAMENTO DE ')'
+        }
+        if ($palavra === "prepara") {
+            $palavra = "function";
+        }
+        if ($palavra === "deuPorHoje") {
+            $palavra = "return";
+        }
+        if ($palavra === "desceUma") {
+            $palavra = " ";
+        }
+
+        return $palavra;
     }
 
 }
 
 $tradutor = new Tradutor();
 $fonte_fragmentado = $tradutor->divide_texto( $codigo_fonte );
-$fonte_lexico = $tradutor->analise_lexica( $fonte_fragmentado );
-$fonte_sintatico = $tradutor->analise_sintatica( $fonte_lexico );
+
+if ( $fonte_fragmentado != false )
+{
+    $fonte_lexico = $tradutor->analise_lexica( $fonte_fragmentado );
+
+    if ( $fonte_lexico != false )
+    {
+        $fonte_sintatico = $tradutor->analise_sintatica( $fonte_lexico );
+    } else {
+        echo "<br>ERRO ENCONTRADO, CÓDIGO NÃO COMPILADO!";
+    }
+        if ( $fonte_sintatico != false )
+        {
+            echo "<br> ============================================================ <br>",
+            "<b>SUCESSO AO COMPILAR!</b>",
+            "<br><a href='traduzido.php' target='_blank' >Clique aqui para executar arquivo TRADUZIDO!</a>",
+            "<br> ============================================================ <br>";
+
+            $fonte_traduzido = $tradutor->traducao( $fonte_sintatico );
+
+            if ( $fonte_traduzido != false ) {
+                echo "<br> ============================================================ <br>";
+                echo "<b>SUCESSO AO TRADUZIR!</b>";
+                echo "<br> ============================================================ <br>";
+            } else {
+                echo "<br>ERRO ENCONTRADO, CÓDIGO NÃO TRADUZIDO!";
+            }
+        } else {
+            echo "<br>ERRO ENCONTRADO, CÓDIGO NÃO COMPILADO!";
+        }
+} else {
+    echo "<br>ERRO ENCONTRADO, CÓDIGO NÃO COMPILADO!";
+}

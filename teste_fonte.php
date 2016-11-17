@@ -11,26 +11,13 @@ pinga resultado = calcularSoma ( 1 , 2 ) ;
 
 bebedeira pinga x = 0 , pinga x <= pinga resultado , pinga x ++ {
 	51 pinga x > 1 boaIdeia? {
-		soltaCana pinga resultado . "<br>" ;
-		soltaCana "teste" ;
+		soltaCana pinga resultado ;
 	}
 }
 
+pinga teste = 0 ;
 
-
-<?php
-
-function calcularSoma( $valor1, $valor2 ) {
-
-	$valor3 = $valor1 + $valor2;
-
-	return $valor3;
-}
- 
-$resultado = calcularSoma( 1, 2 );
-
-for ( $x = 0; $x <= $resultado; $x++ ) {
-	if ( $x > 1 ) {
-		echo $resultado."<br>";
-	}
+transformandoDragaoEmPrincesaSe pinga teste <= 10 {
+	soltaCana pinga teste ;
+	pinga teste ++ ;
 }
